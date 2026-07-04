@@ -11,9 +11,9 @@ export component AppWindow inherits Window {
     callback browse_output();
     callback generate_icons();
 
-    in property <string> log_text: "In attesa di operazioni...";
-    in property <string> selected_files_text: "Nessun file selezionato.";
-    in property <string> output_dir_text: "Nessuna cartella selezionata.";
+    in property <string> log_text: "Waiting for operations...";
+    in property <string> selected_files_text: "No files selected.";
+    in property <string> output_dir_text: "No folder selected.";
     in property <bool> is_processing: false;
     
     in-out property <string> profile: "Android";
@@ -43,7 +43,7 @@ export component AppWindow inherits Window {
                         horizontal-alignment: center;
                     }
                     Text {
-                        text: "Generatore di Icone Multi-formato";
+                        text: "Multi-format Icon Generator";
                         font-size: 16px;
                         color: #a1a1aa;
                         horizontal-alignment: center;
@@ -61,16 +61,16 @@ export component AppWindow inherits Window {
                             padding: 16px;
                             spacing: 12px;
                             
-                            Text { text: "📁 File e Destinazione"; font-size: 18px; color: #e4e4e7; font-weight: 700; }
+                            Text { text: "📁 Files and Destination"; font-size: 18px; color: #e4e4e7; font-weight: 700; }
                             
                             HorizontalBox {
                                 spacing: 10px;
-                                Button { text: "Sfoglia Immagini"; clicked => { browse_images(); } enabled: !is_processing; }
+                                Button { text: "Browse Images"; clicked => { browse_images(); } enabled: !is_processing; }
                                 Text { text: selected_files_text; color: #71717a; vertical-alignment: center; overflow: elide; }
                             }
                             HorizontalBox {
                                 spacing: 10px;
-                                Button { text: "Sfoglia Destinazione"; clicked => { browse_output(); } enabled: !is_processing; }
+                                Button { text: "Browse Destination"; clicked => { browse_output(); } enabled: !is_processing; }
                                 Text { text: output_dir_text; color: #71717a; vertical-alignment: center; overflow: elide; }
                             }
                         }
@@ -88,16 +88,16 @@ export component AppWindow inherits Window {
                             padding: 16px;
                             spacing: 12px;
                             
-                            Text { text: "⚙️ Configurazione Profilo"; font-size: 18px; color: #e4e4e7; font-weight: 700; }
+                            Text { text: "⚙️ Profile Configuration"; font-size: 18px; color: #e4e4e7; font-weight: 700; }
                             
                             ComboBox {
-                                model: ["Android", "iOS", "Favicon", "Personalizzato"];
+                                model: ["Android", "iOS", "Favicon", "Custom"];
                                 current-value <=> profile;
                                 enabled: !is_processing;
                             }
 
-                            if profile == "Personalizzato" : HorizontalBox {
-                                Text { text: "Dimensioni (csv):"; color: #e4e4e7; vertical-alignment: center; }
+                            if profile == "Custom" : HorizontalBox {
+                                Text { text: "Dimensions (csv):"; color: #e4e4e7; vertical-alignment: center; }
                                 LineEdit {
                                     text <=> custom_sizes;
                                     enabled: !is_processing;
@@ -105,7 +105,7 @@ export component AppWindow inherits Window {
                             }
 
                             HorizontalBox {
-                                Text { text: "Formato Output:"; color: #e4e4e7; vertical-alignment: center; }
+                                Text { text: "Output Format:"; color: #e4e4e7; vertical-alignment: center; }
                                 ComboBox {
                                     model: ["png", "jpg", "bmp", "ico"];
                                     current-value <=> output_format;
@@ -127,16 +127,16 @@ export component AppWindow inherits Window {
                             padding: 16px;
                             spacing: 12px;
                             
-                            Text { text: "🛠️ Strumenti Avanzati"; font-size: 18px; color: #e4e4e7; font-weight: 700; }
+                            Text { text: "🛠️ Advanced Tools"; font-size: 18px; color: #e4e4e7; font-weight: 700; }
                             
                             CheckBox {
-                                text: "Rimuovi Sfondo Monocromatico";
+                                text: "Remove Monochromatic Background";
                                 checked <=> remove_bg;
                                 enabled: !is_processing;
                             }
 
                             if remove_bg : HorizontalBox {
-                                Text { text: "Tolleranza:"; color: #e4e4e7; vertical-alignment: center; }
+                                Text { text: "Tolerance:"; color: #e4e4e7; vertical-alignment: center; }
                                 Slider {
                                     minimum: 0.0;
                                     maximum: 255.0;
@@ -158,9 +158,9 @@ export component AppWindow inherits Window {
 
                     // BUTTON
                     Button {
-                        text: "🚀 Genera Icone!";
+                        text: "🚀 Generate Icons!";
                         primary: true;
-                        enabled: !is_processing && selected_files_text != "Nessun file selezionato." && output_dir_text != "Nessuna cartella selezionata.";
+                        enabled: !is_processing && selected_files_text != "No files selected." && output_dir_text != "No folder selected.";
                         clicked => { generate_icons(); }
                         height: 50px;
                     }
@@ -176,7 +176,7 @@ export component AppWindow inherits Window {
             VerticalBox {
                 padding: 20px;
                 Text {
-                    text: "📝 Console di Sistema";
+                    text: "📝 System Console";
                     font-size: 20px;
                     color: #a1a1aa;
                     font-weight: 700;

@@ -27,7 +27,7 @@ fn main() -> Result<(), slint::PlatformError> {
     let state_clone = state.clone();
     ui.on_browse_images(move || {
         if let Some(paths) = FileDialog::new()
-            .add_filter("Immagini", &["png", "jpg", "jpeg", "bmp"])
+            .add_filter("Images", &["png", "jpg", "jpeg", "bmp"])
             .pick_files()
         {
             state_clone.borrow_mut().input_files = paths.clone();
@@ -35,7 +35,7 @@ fn main() -> Result<(), slint::PlatformError> {
                 if paths.len() == 1 {
                     ui.set_selected_files_text(paths[0].file_name().unwrap_or_default().to_string_lossy().to_string().into());
                 } else {
-                    ui.set_selected_files_text(format!("{} file selezionati", paths.len()).into());
+                    ui.set_selected_files_text(format!("{} files selected", paths.len()).into());
                 }
             }
         }
@@ -67,18 +67,18 @@ fn main() -> Result<(), slint::PlatformError> {
         let output_dir = match &state.output_dir {
             Some(d) => d.clone(),
             None => {
-                ui.set_log_text("Errore: Nessuna cartella di output selezionata.".into());
+                ui.set_log_text("Error: No output folder selected.".into());
                 return;
             }
         };
         
         if input_files.is_empty() {
-            ui.set_log_text("Errore: Nessuna immagine selezionata.".into());
+            ui.set_log_text("Error: No image selected.".into());
             return;
         }
 
         ui.set_is_processing(true);
-        ui.set_log_text(format!("Avvio elaborazione di {} file...\n", input_files.len()).into());
+        ui.set_log_text(format!("Starting processing of {} files...\n", input_files.len()).into());
         
         let profile = ui.get_profile().to_string();
         let custom_sizes = ui.get_custom_sizes().to_string();
@@ -91,7 +91,7 @@ fn main() -> Result<(), slint::PlatformError> {
             "Android" => sizes.extend(&[36, 48, 72, 96, 144, 192]),
             "iOS" => sizes.extend(&[20, 29, 40, 58, 60, 76, 80, 87, 114, 120, 152, 167, 180, 1024]),
             "Favicon" => sizes.extend(&[16, 32, 48, 192, 512]),
-            "Personalizzato" => {
+            "Custom" => {
                 for s in custom_sizes.split(',') {
                     if let Ok(num) = s.trim().parse::<u32>() {
                         sizes.push(num);
@@ -120,7 +120,7 @@ fn main() -> Result<(), slint::PlatformError> {
 
             if !output_dir.exists() {
                 if let Err(e) = std::fs::create_dir_all(&output_dir) {
-                    send_log(format!("Errore critico creazione cartella: {}", e));
+                    send_log(format!("Critical error creating folder: {}", e));
                     let ui_handle = ui_handle.clone();
                     let _ = slint::invoke_from_event_loop(move || {
                         if let Some(ui) = ui_handle.upgrade() { ui.set_is_processing(false); }
@@ -131,12 +131,12 @@ fn main() -> Result<(), slint::PlatformError> {
 
             for input_file in input_files {
                 let original_name = input_file.file_stem().unwrap_or_default().to_string_lossy();
-                send_log(format!("--- Processando {} ---", original_name));
+                send_log(format!("--- Processing {} ---", original_name));
 
                 let mut img = match image::open(&input_file) {
                     Ok(i) => i,
                     Err(e) => {
-                        send_log(format!("Errore caricamento {}: {}", original_name, e));
+                        send_log(format!("Error loading {}: {}", original_name, e));
                         continue;
                     }
                 };
@@ -163,13 +163,13 @@ fn main() -> Result<(), slint::PlatformError> {
                     let out_path = output_dir.join(&filename);
 
                     match resized.save(&out_path) {
-                        Ok(_) => send_log(format!("Salvato: {}", filename)),
-                        Err(e) => send_log(format!("ERRORE {}: {}", filename, e)),
+                        Ok(_) => send_log(format!("Saved: {}", filename)),
+                        Err(e) => send_log(format!("ERROR {}: {}", filename, e)),
                     }
                 }
             }
 
-            send_log("Elaborazione completata con successo!".to_string());
+            send_log("Processing completed successfully!".to_string());
             let ui_handle = ui_handle.clone();
             let _ = slint::invoke_from_event_loop(move || {
                 if let Some(ui) = ui_handle.upgrade() { ui.set_is_processing(false); }
