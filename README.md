@@ -43,5 +43,38 @@ cd IcoGen
 cargo run --release
 ```
 
+## 📦 Using IcoGen as a Library
+
+IcoGen is designed with a clean architecture that separates the UI from the image processing engine. You can use it as a backend library in your own Rust projects (like Web Servers, CLI tools, or data pipelines) without launching the Slint interface.
+
+Add it to your `Cargo.toml`:
+```toml
+[dependencies]
+icogen = { git = "https://github.com/MichelBernasconi/IcoGen.git" }
+```
+
+Example usage:
+```rust
+use icogen::{generate_icons, IcoGenConfig};
+use std::path::PathBuf;
+
+fn main() {
+    let config = IcoGenConfig {
+        input_files: vec![PathBuf::from("logo.png")],
+        output_dir: PathBuf::from("output/"),
+        format: "png".to_string(),
+        profile: "iOS".to_string(),
+        custom_sizes: "".to_string(),
+        remove_bg: true,
+        bg_tolerance: 10,
+    };
+
+    // The engine handles the heavy lifting, sending logs back via closure
+    generate_icons(config, |log_message| {
+        println!("IcoGen Log: {}", log_message);
+    });
+}
+```
+
 ## License
 Distributed under the MIT License. See `LICENSE` for more information.
