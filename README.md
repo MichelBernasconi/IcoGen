@@ -7,8 +7,7 @@
 
 Questo tool è stato pensato appositamente per sviluppatori software, creatori di app mobile (Android/iOS) e web designer. Permette di prendere una singola immagine sorgente (oppure centinaia di immagini in batch) e generare in un solo clic tutte le dimensioni necessarie per i diversi ecosistemi, applicando automaticamente filtri di alta qualità (Lanczos3) ed, eventualmente, rimuovendo gli sfondi monocromatici indesiderati.
 
-![IcoGen Premium Interface](assets/screenshot.png) 
-*(Nota: inserisci uno screenshot dell'app nella cartella `assets/screenshot.png` per renderlo visibile)*
+![alt text](image.png)
 
 ## 🚀 Caratteristiche Principali
 
