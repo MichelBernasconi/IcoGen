@@ -2,12 +2,12 @@
 
 slint::include_modules!();
 
-use image::imageops::FilterType;
 use rfd::FileDialog;
 use std::path::PathBuf;
 use std::rc::Rc;
 use std::cell::RefCell;
 use std::thread;
+use IcoGen::{generate_icons, IcoGenConfig};
 
 struct AppState {
     input_files: Vec<PathBuf>,
@@ -80,97 +80,36 @@ fn main() -> Result<(), slint::PlatformError> {
         ui.set_is_processing(true);
         ui.set_log_text(format!("Starting processing of {} files...\n", input_files.len()).into());
         
-        let profile = ui.get_profile().to_string();
-        let custom_sizes = ui.get_custom_sizes().to_string();
-        let format = ui.get_output_format().to_string();
-        let remove_bg = ui.get_remove_bg();
-        let bg_tolerance = ui.get_bg_tolerance() as u8;
-
-        let mut sizes = Vec::new();
-        match profile.as_str() {
-            "Android" => sizes.extend(&[36, 48, 72, 96, 144, 192]),
-            "iOS" => sizes.extend(&[20, 29, 40, 58, 60, 76, 80, 87, 114, 120, 152, 167, 180, 1024]),
-            "Favicon" => sizes.extend(&[16, 32, 48, 192, 512]),
-            "Custom" => {
-                for s in custom_sizes.split(',') {
-                    if let Ok(num) = s.trim().parse::<u32>() {
-                        sizes.push(num);
-                    }
-                }
-            }
-            _ => {}
-        }
-        sizes.sort_unstable();
-        sizes.dedup();
+        let config = IcoGenConfig {
+            input_files,
+            output_dir,
+            profile: ui.get_profile().to_string(),
+            custom_sizes: ui.get_custom_sizes().to_string(),
+            format: ui.get_output_format().to_string(),
+            remove_bg: ui.get_remove_bg(),
+            bg_tolerance: ui.get_bg_tolerance() as u8,
+        };
 
         let ui_handle = ui_weak.clone();
         
         thread::spawn(move || {
-            let send_log = |msg: String| {
+            let send_log = {
                 let ui_handle = ui_handle.clone();
-                let _ = slint::invoke_from_event_loop(move || {
-                    if let Some(ui) = ui_handle.upgrade() {
-                        let mut current_log = ui.get_log_text().to_string();
-                        current_log.push_str(&msg);
-                        current_log.push('\n');
-                        ui.set_log_text(current_log.into());
-                    }
-                });
-            };
-
-            if !output_dir.exists() {
-                if let Err(e) = std::fs::create_dir_all(&output_dir) {
-                    send_log(format!("Critical error creating folder: {}", e));
+                move |msg: String| {
                     let ui_handle = ui_handle.clone();
                     let _ = slint::invoke_from_event_loop(move || {
-                        if let Some(ui) = ui_handle.upgrade() { ui.set_is_processing(false); }
-                    });
-                    return;
-                }
-            }
-
-            for input_file in input_files {
-                let original_name = input_file.file_stem().unwrap_or_default().to_string_lossy();
-                send_log(format!("--- Processing {} ---", original_name));
-
-                let mut img = match image::open(&input_file) {
-                    Ok(i) => i,
-                    Err(e) => {
-                        send_log(format!("Error loading {}: {}", original_name, e));
-                        continue;
-                    }
-                };
-
-                if remove_bg {
-                    let mut rgba_img = img.to_rgba8();
-                    if let Some(bg_pixel) = rgba_img.get_pixel_checked(0, 0) {
-                        let bg_color = *bg_pixel;
-                        for pixel in rgba_img.pixels_mut() {
-                            let diff_r = (pixel[0] as i32 - bg_color[0] as i32).abs() as u8;
-                            let diff_g = (pixel[1] as i32 - bg_color[1] as i32).abs() as u8;
-                            let diff_b = (pixel[2] as i32 - bg_color[2] as i32).abs() as u8;
-                            if diff_r <= bg_tolerance && diff_g <= bg_tolerance && diff_b <= bg_tolerance {
-                                pixel[3] = 0;
-                            }
+                        if let Some(ui) = ui_handle.upgrade() {
+                            let mut current_log = ui.get_log_text().to_string();
+                            current_log.push_str(&msg);
+                            current_log.push('\n');
+                            ui.set_log_text(current_log.into());
                         }
-                    }
-                    img = image::DynamicImage::ImageRgba8(rgba_img);
+                    });
                 }
+            };
 
-                for (index, &size) in sizes.iter().enumerate() {
-                    let resized = img.resize(size, size, FilterType::Lanczos3);
-                    let filename = format!("{}_icon_{:02}_{}x{}.{}", original_name, index + 1, size, size, format);
-                    let out_path = output_dir.join(&filename);
+            generate_icons(config, send_log);
 
-                    match resized.save(&out_path) {
-                        Ok(_) => send_log(format!("Saved: {}", filename)),
-                        Err(e) => send_log(format!("ERROR {}: {}", filename, e)),
-                    }
-                }
-            }
-
-            send_log("Processing completed successfully!".to_string());
-            let ui_handle = ui_handle.clone();
             let _ = slint::invoke_from_event_loop(move || {
                 if let Some(ui) = ui_handle.upgrade() { ui.set_is_processing(false); }
             });
