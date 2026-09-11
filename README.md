@@ -1,6 +1,6 @@
 # ✨ IcoGen Premium
 
-[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/MichelBernasconi)
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/hoppingdreams)
 
 ## About
 **IcoGen** is a powerful multi-format icon generator written entirely in **Rust** and powered by a modern, fast, and fluid graphical interface based on **Slint**. 

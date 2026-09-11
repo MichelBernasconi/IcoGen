@@ -17,6 +17,7 @@ pub fn generate_icons<F>(config: IcoGenConfig, mut log_callback: F)
 where 
     F: FnMut(String)
 {
+    let mut convert_only = false;
     let mut sizes = Vec::new();
     match config.profile.as_str() {
         "Android" => sizes.extend(&[36, 48, 72, 96, 144, 192]),
@@ -29,6 +30,7 @@ where
                 }
             }
         }
+        "Convert Only" => convert_only = true,
         _ => {}
     }
     sizes.sort_unstable();
@@ -69,14 +71,24 @@ where
             img = image::DynamicImage::ImageRgba8(rgba_img);
         }
 
-        for (index, &size) in sizes.iter().enumerate() {
-            let resized = img.resize(size, size, FilterType::Lanczos3);
-            let filename = format!("{}_icon_{:02}_{}x{}.{}", original_name, index + 1, size, size, config.format);
+        if convert_only {
+            let filename = format!("{}_converted.{}", original_name, config.format);
             let out_path = config.output_dir.join(&filename);
 
-            match resized.save(&out_path) {
+            match img.save(&out_path) {
                 Ok(_) => log_callback(format!("Saved: {}", filename)),
                 Err(e) => log_callback(format!("ERROR {}: {}", filename, e)),
+            }
+        } else {
+            for (index, &size) in sizes.iter().enumerate() {
+                let resized = img.resize(size, size, FilterType::Lanczos3);
+                let filename = format!("{}_icon_{:02}_{}x{}.{}", original_name, index + 1, size, size, config.format);
+                let out_path = config.output_dir.join(&filename);
+
+                match resized.save(&out_path) {
+                    Ok(_) => log_callback(format!("Saved: {}", filename)),
+                    Err(e) => log_callback(format!("ERROR {}: {}", filename, e)),
+                }
             }
         }
     }

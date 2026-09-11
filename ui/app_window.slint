@@ -91,7 +91,7 @@ export component AppWindow inherits Window {
                             Text { text: "⚙️ Profile Configuration"; font-size: 18px; color: #e4e4e7; font-weight: 700; }
                             
                             ComboBox {
-                                model: ["Android", "iOS", "Favicon", "Custom"];
+                                model: ["Android", "iOS", "Favicon", "Custom", "Convert Only"];
                                 current-value <=> profile;
                                 enabled: !is_processing;
                             }
@@ -107,7 +107,7 @@ export component AppWindow inherits Window {
                             HorizontalBox {
                                 Text { text: "Output Format:"; color: #e4e4e7; vertical-alignment: center; }
                                 ComboBox {
-                                    model: ["png", "jpg", "bmp", "ico"];
+                                    model: ["png", "jpg", "bmp", "ico", "webp", "gif"];
                                     current-value <=> output_format;
                                     enabled: !is_processing;
                                 }

@@ -27,7 +27,7 @@ fn main() -> Result<(), slint::PlatformError> {
     let state_clone = state.clone();
     ui.on_browse_images(move || {
         if let Some(paths) = FileDialog::new()
-            .add_filter("Images", &["png", "jpg", "jpeg", "bmp"])
+            .add_filter("Images", &["png", "jpg", "jpeg", "bmp", "webp", "gif"])
             .pick_files()
         {
             state_clone.borrow_mut().input_files = paths.clone();
