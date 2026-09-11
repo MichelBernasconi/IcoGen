@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 rfd = "0.14.1"
 image = "0.25.1"
+resvg = "0.47.0"
 slint = { version = "1.5.1", default-features = true, features = ["backend-winit", "renderer-femtovg"] }
 
 [build-dependencies]
